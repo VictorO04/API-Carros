@@ -82,5 +82,39 @@ const deleteCarros = (req, res) => {
     });
 }
 
+const updateCarros = (req, res) => {
+    const id = req.params.id;
+    const {nome, modelo, ano, cor, qtdeVitorias} = req.body;
 
-export {getAllCarros, getByIdCarros, createCarros, deleteCarros}
+    if (isNaN(id)) {
+        return res.status(400).json({
+            succes: false,
+            message: "ID deve ser um número vélido"
+        });
+    }
+
+    const idParaEditar = parseInt(id);
+
+    const carrosAtualizados = carros.map(carro => carro.id === idParaEditar ? {
+        ...carro,
+        ...(nome && {nome}),
+        ...(modelo && {modelo}),
+        ...(ano && {ano : parseInt(ano)}),
+        ...(cor && {cor}),
+        ...(qtdeVitorias && {qtdeVitorias})
+    }
+        : carro
+);
+
+carros.splice(0, carros.length, ...carrosAtualizados);
+
+const carroAtualizado = carros.find(c => c.id === idParaEditar);
+
+res.status(200).json({
+    succes: true,
+    message: `Dados do carro ID ${id} atualizados com sucesso`,
+    carro: carroAtualizado
+});
+}
+
+export {getAllCarros, getByIdCarros, createCarros, deleteCarros, updateCarros}
